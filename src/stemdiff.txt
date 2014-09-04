@@ -1,0 +1,407 @@
+--- sysstem.c	2008-02-17 12:00:04.000000000 -0500
++++ ..\..\rexxutil_011608\rexxutil\src\sysstem.c	2008-01-15 17:22:28.000000000 -0500
+@@ -65,2 +65,3 @@
+ 
++
+ /*********************************************************************/
+@@ -109,5 +110,3 @@
+     unsigned long   ulCount;
+-    bool            result = TRUE;
+-
+-    logmessage(__func__);
++    bool            fOk = TRUE;
+ 
+@@ -115,3 +114,4 @@
+         !RXVALIDSTRING(args[0]) || !RXVALIDSTRING(args[1]) ||
+-        ((numargs == 3) && !RXVALIDSTRING(args[2])) ) RETINV(BAD_ARGS)
++        ((numargs == 3) && !RXVALIDSTRING(args[2])) )
++      return INVALID_ROUTINE;
+ 
+@@ -130,3 +130,3 @@
+         if (sscanf(args[2].strptr, "%ld", &ulItems) != 1) return INVALID_ROUTINE;
+-        if (ulItems == 0)  RETINV(BAD_ARGS)
++        if (ulItems == 0) return INVALID_ROUTINE;
+     } /* endif */
+@@ -179,3 +179,3 @@
+ 
+-                if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) result = FALSE;
++                if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) fOk = FALSE;
+ 
+@@ -183,8 +183,8 @@
+                 DosFreeMem(shvb.shvvalue.strptr);
+-            } else result = FALSE;
++            } else fOk = FALSE;
+ 
+-            if (!result) break;
++            if (!fOk) break;
+         } /* endfor */
+ 
+-        if (result) {
++        if (fOk) {
+             /* now delete the items at the end */
+@@ -203,3 +203,3 @@
+                 if (RexxVariablePool(&shvb) != RXSHV_OK) {
+-                    result = FALSE;
++                    fOk = FALSE;
+                     break;
+@@ -209,3 +209,3 @@
+ 
+-        if (result) {
++        if (fOk) {
+             /* set the new number of items in the stem array */
+@@ -225,8 +225,10 @@
+ 
+-            if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) result = FALSE;
++            if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) fOk = FALSE;
+         } /* endif */
+ 
+-    } else result = FALSE;
++    } else fOk = FALSE;
+ 
+-    RETVAL(result?0:-1)
++
++    if (fOk) RETVAL(0)
++    else RETVAL(-1)
+ }
+@@ -261,5 +263,3 @@
+     unsigned long   ulCount;
+-    bool            result = TRUE;
+-
+-    logmessage(__func__);
++    bool            fOk = TRUE;
+ 
+@@ -267,3 +267,4 @@
+         !RXVALIDSTRING(args[0]) || !RXVALIDSTRING(args[1]) ||
+-        RXNULLSTRING(args[2]) ) RETINV(BAD_ARGS)
++        RXNULLSTRING(args[2]) )
++      return INVALID_ROUTINE;
+ 
+@@ -281,3 +282,2 @@
+     strcpy(pszStemIdx, "0");
+-
+     shvb.shvnext = NULL;
+@@ -324,3 +324,3 @@
+ 
+-                if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) result = FALSE;
++                if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) fOk = FALSE;
+ 
+@@ -328,8 +328,8 @@
+                 DosFreeMem(shvb.shvvalue.strptr);
+-            } else result = FALSE;
++            } else fOk = FALSE;
+ 
+-            if (!result) break;
++            if (!fOk) break;
+         } /* endfor */
+ 
+-        if (result) {
++        if (fOk) {
+             /* set the new item value */
+@@ -348,6 +348,6 @@
+ 
+-            if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) result = FALSE;
++            if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) fOk = FALSE;
+         } /* endif */
+ 
+-        if (result) {
++        if (fOk) {
+             /* set the new number of items in the stem array */
+@@ -355,3 +355,2 @@
+             sprintf(szValue, "%ld", ulCount + 1);
+-
+             shvb.shvnext = NULL;
+@@ -367,7 +366,9 @@
+             rc = RexxVariablePool(&shvb);
+-            if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) result = FALSE;
++
++            if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) fOk = FALSE;
+         } /* endif */
+-    } else result = FALSE;
++    } else fOk = FALSE;
+ 
+-    RETVAL(result?0:-1)
++    if (fOk) RETVAL(0)
++    else RETVAL(-1)
+ }
+@@ -412,5 +413,3 @@
+     bool          fInsert = FALSE;
+-    bool          result = TRUE;
+-
+-    logmessage(__func__);
++    bool          fOk = TRUE;
+ 
+@@ -491,7 +490,6 @@
+             return INVALID_ROUTINE;
+-    } else result = FALSE;
++    } else fOk = FALSE;
+ 
+-    if (result) {
++    if (fOk) {
+         strcpy(pszToStemIdx, "0");
+-
+         shvb.shvnext = NULL;
+@@ -515,6 +513,6 @@
+                 ulToCount = 0;
+-            } else result = FALSE;
++            } else fOk = FALSE;
+         } /* endif */
+ 
+-        if (result) {
++        if (fOk) {
+             if (ulTo > ulToCount + 1) return INVALID_ROUTINE;
+@@ -526,3 +524,3 @@
+ 
+-    if (result && fInsert) {
++    if (fOk && fInsert) {
+         /* if we are about to insert the items we have to make room */
+@@ -551,3 +549,3 @@
+                 rc = RexxVariablePool(&shvb);
+-                if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) result = FALSE;
++                if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) fOk = FALSE;
+ 
+@@ -555,5 +553,5 @@
+                 DosFreeMem(shvb.shvvalue.strptr);
+-            } else result = FALSE;
++            } else fOk = FALSE;
+ 
+-            if (!result) break;
++            if (!fOk) break;
+ 
+@@ -561,3 +559,3 @@
+ 
+-        if (result) {
++        if (fOk) {
+             /* set the new count for the target stem */
+@@ -576,3 +574,3 @@
+             rc = RexxVariablePool(&shvb);
+-            if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) result = FALSE;
++            if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) fOk = FALSE;
+         } /* endif */
+@@ -580,3 +578,3 @@
+ 
+-    if (result) {
++    if (fOk) {
+         /* now do the actual copying from the source to target */
+@@ -606,3 +604,3 @@
+ 
+-                if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) result = FALSE;
++                if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) fOk = FALSE;
+ 
+@@ -610,5 +608,5 @@
+                 DosFreeMem(shvb.shvvalue.strptr);
+-            } else result = FALSE;
++            } else fOk = FALSE;
+ 
+-            if (!result) break;
++            if (!fOk) break;
+         } /* endfor */
+@@ -616,3 +614,3 @@
+ 
+-    if (result && (ulTo + ulCopyCount - 1 > ulToCount)) {
++    if (fOk && (ulTo + ulCopyCount - 1 > ulToCount)) {
+         /* set the new count for the target stem */
+@@ -632,6 +630,7 @@
+ 
+-        if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) result = FALSE;
++        if ((rc != RXSHV_OK) && (rc != RXSHV_NEWV)) fOk = FALSE;
+     } /* endif */
+ 
+-    RETVAL(result?0:-1)
++    if (fOk) RETVAL(0)
++    else RETVAL(-1)
+ }
+@@ -734,4 +733,2 @@
+ 
+-    char tmp[256] = {0};
+-
+     // regutil varables
+@@ -744,3 +741,2 @@
+ 
+-    logmessage(__func__);
+ 
+@@ -748,3 +744,3 @@
+     if ( (numargs < 1) || (numargs > 7) || !RXVALIDSTRING(args[0]))
+-        return INVALID_ROUTINE;
++        RETVAL(-1) // return INVALID_ROUTINE;
+ 
+@@ -757,4 +753,2 @@
+ 
+-strcpy(tmp, stemName);
+-
+     /* check other parameters */
+@@ -764,5 +758,2 @@
+ 
+-strcat(tmp, " ");
+-strcat(tmp, args[1].strptr);
+-
+         switch (args[1].strptr[0]) {
+@@ -787,5 +778,2 @@
+ 
+-strcat(tmp, " ");
+-strcat(tmp, args[2].strptr);
+-
+         switch (args[2].strptr[0]) {
+@@ -809,6 +797,2 @@
+     if ((numargs >= 4) && RXVALIDSTRING(args[3])) { /* first element to sort */
+-
+-strcat(tmp, " ");
+-strcat(tmp, args[3].strptr);
+-
+         if (sscanf(args[3].strptr, "%ld", &first) != 1) return INVALID_ROUTINE;
+@@ -819,6 +803,2 @@
+     if ((numargs >= 5) && RXVALIDSTRING(args[4])) { /* last element to sort */
+-
+-strcat(tmp, " ");
+-strcat(tmp, args[4].strptr);
+-
+         if (sscanf(args[4].strptr, "%ld", &last) != 1) return INVALID_ROUTINE;
+@@ -829,6 +809,2 @@
+     if ((numargs >= 6) && RXVALIDSTRING(args[5])) { /* first column to sort */
+-
+-strcat(tmp, " ");
+-strcat(tmp, args[5].strptr);
+-
+         if (sscanf(args[5].strptr, "%ld", &firstCol) != 1) return INVALID_ROUTINE;
+@@ -839,6 +815,2 @@
+     if ((numargs == 7) && RXVALIDSTRING(args[6])) { /* last column to sort */
+-
+-strcat(tmp, " ");
+-strcat(tmp, args[6].strptr);
+-
+         if (sscanf(args[6].strptr, "%ld", &lastCol) != 1) return INVALID_ROUTINE;
+@@ -848,3 +820,2 @@
+ 
+-logmessage(tmp);
+ 
+@@ -859,4 +830,2 @@
+ 
+-
+-    // allocate memory
+     ca = new_chararray();
+@@ -864,3 +833,2 @@
+ 
+-
+     getstemtail(args, 1, ca);
+@@ -872,13 +840,11 @@
+ 
+-    if (sortType && sortOrder) {
+-        cmpfn = rxstrcasecmpbackwards;
+-    } else if (sortType) {
+-        cmpfn = rxstrcasecmp;
+-    } else if (sortOrder) {
+-        cmpfn = rxstrcmpbackwards;
+-    } else cmpfn = rxstrcmp;
++    if (sortType && sortOrder) cmpfn = rxstrcasecmpbackwards;
++    else if (sortType) cmpfn = rxstrcasecmp;
++    else if (sortOrder) cmpfn = rxstrcmpbackwards;
++    else cmpfn = rxstrcmp;
++
++    if (!firstCol && !width)
++      qsort(ca->array+start, count, sizeof(*ca->array), (int(*)(const void *, const void *))cmpfn);
++    else {
+ 
+-    if (!firstCol && !width) {
+-        qsort(ca->array+start, count, sizeof(*ca->array), (int(*)(const void *, const void *))cmpfn);
+-    } else {
+         struct {
+@@ -890,2 +856,4 @@
+ 
++
++
+         if (!aa) {
+@@ -895,4 +863,2 @@
+ 
+-        memset(aa, '\0', (sizeof(*aa) * count));
+-
+         for (i = 0; i < count; i++) {
+@@ -909,3 +875,5 @@
+ 
+-      for (i = 0; i < count; i++) ca->array[i+start] = aa[i].orig;
++      for (i = 0; i < count; i++) {
++         ca->array[i+start] = aa[i].orig;
++      }
+ 
+@@ -1099,7 +1067,4 @@
+     SHVBLOCK stem0[2];
+-
+     register int i;
+-
+     int namelen = varname->strlength + 12, orignamelen, count;
+-
+     char *namebuf;
+@@ -1110,3 +1075,2 @@
+     namebuf = malloc(namelen * (values->count+1));
+-    memset(namebuf, '\0', (namelen * (values->count+1)));
+ 
+@@ -1115,6 +1079,6 @@
+         astem = malloc(values->count*sizeof(*astem));
+-        memset(astem, '\0', values->count * sizeof(*astem));
++        memset(astem, 0, values->count * sizeof(*astem));
+     } else {
+-        astem = NULL;
+-        count = 0;
++       astem = NULL;
++       count = 0;
+     }
+@@ -1124,10 +1088,10 @@
+     if (varname->strptr[varname->strlength-1] == '.') {
+-        rxstrdup(origname, *varname);
+-        orignamelen = varname->strlength;
++       rxstrdup(origname, *varname);
++       orignamelen = varname->strlength;
+     } else {
+-        origname = alloca(varname->strlength+2);
+-        memcpy(origname, varname->strptr, varname->strlength);
+-        origname[varname->strlength] = '.';
+-        origname[varname->strlength+1] = 0;
+-        orignamelen = varname->strlength+1;
++       origname = alloca(varname->strlength+2);
++       memcpy(origname, varname->strptr, varname->strlength);
++       origname[varname->strlength] = '.';
++       origname[varname->strlength+1] = 0;
++       orignamelen = varname->strlength+1;
+     }
+@@ -1144,14 +1108,6 @@
+     stem0[1].shvnext = astem;
+-
+-    sprintf(nameptr, "%s%d", origname, 0);
+-
+-    MAKERXSTRING( stem0[1].shvname, nameptr, strlen(nameptr));
+-//logmessage(tmp);
+-//    stem0[1].shvname.strptr = nameptr;
+-//    stem0[1].shvname.strlength = sprintf(nameptr, "%s%d", origname, 0);
+-
+-    MAKERXSTRING(stem0[1].shvvalue, valbuf, strlen(valbuf));
+-//logmessage(tmp);
+-//    stem0[1].shvvalue.strptr = valbuf;
+-//    stem0[1].shvvalue.strlength = sprintf(valbuf, "%d", count);
++    stem0[1].shvname.strptr = nameptr;
++    stem0[1].shvname.strlength = sprintf(nameptr, "%s%d", origname, 0);
++    stem0[1].shvvalue.strptr = valbuf;
++    stem0[1].shvvalue.strlength = sprintf(valbuf, "%d", count);
+     stem0[1].shvcode = RXSHV_SYSET;
+@@ -1162,12 +1118,5 @@
+         astem[i].shvnext = astem+i+1;
+-
+-        sprintf(nameptr, "%s%d", origname, i+1);
+-
+-        MAKERXSTRING( astem[i].shvname, nameptr, strlen(nameptr));
+-//        astem[i].shvname.strptr = nameptr;
+-//        astem[i].shvname.strlength = sprintf(nameptr, "%s%d", origname, i+1);
+-
++        astem[i].shvname.strptr = nameptr;
++        astem[i].shvname.strlength = sprintf(nameptr, "%s%d", origname, i+1);
+         astem[i].shvvalue = values->array[i];
+-        astem[i].shvvalue.strlength = strlen(astem[i].shvvalue.strptr);
+-
+         astem[i].shvcode = RXSHV_SYSET;
+@@ -1179,5 +1128,3 @@
+     RexxVariablePool(stem0);
+-                            //      m,
+     free(namebuf);
+-
+     if (astem) free(astem);
+@@ -1285,2 +1232,3 @@
+ 
++
+     ca->array[ca->count].strlength = len;
